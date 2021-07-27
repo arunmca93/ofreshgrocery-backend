@@ -6,15 +6,17 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json() )
 
 //Import utils
-const { env } = require('./utils')
+const { env, authMidwre } = require('./utils')
 
 //Import DB
 const db = require('./models')
 
 //Importing Routes
 app.use('/users',require('./routes/users'));
+app.use('/orders',require('./routes/orders'));
 
-app.get('/',(req, res) => {
+
+app.get('/',authMidwre('base ctrl'),(req, res) => {
     res.json('API Server running on port 4000')
 })
 

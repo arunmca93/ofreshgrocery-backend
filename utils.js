@@ -6,7 +6,19 @@ const _ =(data=[], code=200, msg='') => {
     return ({data, code, msg});
 }
 
+
+const authMidwre = (permission) => {
+
+    return (req, res, next)=>{
+
+        console.log('Middleware!!!', permission);
+
+        next()
+    }
+}
+
 module.exports = {
     env,
-    _
+    _,
+    authMidwre
 }
