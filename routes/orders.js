@@ -1,8 +1,6 @@
 const router = require('express').Router()
-const bcrypt  = require('bcrypt')
-const jwt = require('jsonwebtoken')
 
-const { env, _ } = require('../utils')
+const { env, _, authMidwre } = require('../utils')
 
 //Models
 const db = require('../models'); 
@@ -10,19 +8,34 @@ const { QueryTypes } = require('sequelize');
 const { sequelize } = require('../models');
 
 
-router.get('/',(req, res) => {
-    res.json('orders base');
+router.get('/',authMidwre('can_view_list'),async (req, res) => {
+
+    try{
+
+        const user = req.user
+    
+        const query = `select id, name, description,(select count(id) from grocery_orders_line where order_id=a.id) item_count from grocery_orders a
+        where a.user_id=${user.id}`;
+
+        const orders = await sequelize.query(query,{ raw:false, type: QueryTypes.SELECT})
+            
+        return res.json(_(orders,200,'List info!'));
+    
+        }catch(err){
+            console.log(err)
+            return res.json(_([], 400, 'There is an error while fetching list!!!'));
+        }
 })
 
 
 
-router.post('/search', async (req, res) => {
+router.post('/search', authMidwre('can_search_item'), async (req, res) => {
     
     try{
     const data = req.body
 
     if(!data.key || data.key==='')
-        return res.json(_([],404,'Invalid key'));
+        return res.json(_([],400,'Invalid key'));
 
     let query = `select tag.id tag_id, tag.name, item.name item_name,
     un.name unit_name, un.code from unit un
@@ -42,20 +55,21 @@ router.post('/search', async (req, res) => {
 })
 
 
-router.post('/create', async (req, res) => {
+router.post('/create', authMidwre('can_create_list'), async (req, res) => {
     
     try{
     const data = req.body
+    const user = req.user
 
     const order = await db['groceryOrders'].create({
         name:data.name,
         description:data.description,
-        userId:data.user_id,
+        userId:user.id,
         shopId:data.shop_id,
         addressId:data.address_id
     })
 
-    console.log(order.id)
+    //console.log(order.id)
 
     data.items.forEach(async (item) => {
         const item_insert = await db['groceryOrdersLine'].create({
@@ -75,18 +89,20 @@ router.post('/create', async (req, res) => {
 })
 
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMidwre('can_edit_list'), async (req, res) => {
     
     try{
     const data = req.body
     const order_id= req.params.id
+    const user = req.user
+
 
     const order = await db['groceryOrders'].findOne({where:{id:order_id}});
 
 
         order.name=data.name,
         order.description=data.description,
-        order.userId=data.user_id,
+        order.userId=user.id,
         order.shopId=data.shop_id,
         order.addressId=data.address_id
 
@@ -111,7 +127,7 @@ router.put('/:id', async (req, res) => {
     }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMidwre('can_delete_list'), async (req, res) => {
     
     try{
     const order_id= req.params.id

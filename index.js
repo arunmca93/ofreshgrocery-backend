@@ -14,9 +14,10 @@ const db = require('./models')
 //Importing Routes
 app.use('/users',require('./routes/users'));
 app.use('/orders',require('./routes/orders'));
+app.use('/dashboard',require('./routes/dashboard'));
 
 
-app.get('/',authMidwre('base ctrl'),(req, res) => {
+app.get('/',(req, res) => {
     res.json('API Server running on port 4000')
 })
 

@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
     const userData = await db['Users'].findOne({where:{email:data.email}})
 
     if(!userData || !userData.password || !await bcrypt.compare(data.password, userData.password))
-        return res.json(_([],404,'Invalid Username and/or Password'));
+        return res.json(_([],400,'Invalid Username and/or Password'));
 
     const query = `select usr.id, usr.name, usr.mobile, usr.email, usr.role_id, string_agg(per.name,',') permission from users usr 
     inner join roles_permissions_rel rel on rel."RoleId" = usr.role_id 
