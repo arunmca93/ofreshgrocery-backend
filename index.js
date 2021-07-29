@@ -5,6 +5,12 @@ const app = express()
 const bodyParser = require('body-parser');
 app.use(bodyParser.json() )
 
+//CORS
+const cors = require('cors')
+app.use(cors({
+    origin:'*'
+}))
+
 //Import utils
 const { env, authMidwre } = require('./utils')
 

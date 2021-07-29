@@ -14,7 +14,7 @@ router.get('/',authMidwre('can_view_list'),async (req, res) => {
 
         const user = req.user
     
-        const query = `select id, name, description,(select count(id) from grocery_orders_line where order_id=a.id) item_count from grocery_orders a
+        const query = `select id, name, description, created_at, updated_at, (select count(id) from grocery_orders_line where order_id=a.id) item_count from grocery_orders a
         where a.user_id=${user.id}`;
 
         const orders = await sequelize.query(query,{ raw:false, type: QueryTypes.SELECT})
