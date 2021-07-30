@@ -37,8 +37,8 @@ router.post('/search', authMidwre('can_search_item'), async (req, res) => {
     if(!data.key || data.key==='')
         return res.json(_([],400,'Invalid key'));
 
-    let query = `select tag.id tag_id, tag.name, item.name item_name,
-    un.name unit_name, un.code from unit un
+    let query = `select tag.id tag_id, tag.name, item.name item_name, item.id item_id,  
+    un.name unit_name, un.code, '' as description, 0 as quantity from unit un
     inner join grocery_items item on item.unit_id = un.id
     inner join tags tag on tag.grocery_item_id = item.id
     where item.is_active=true and item.is_removed=false and 
